@@ -136,3 +136,80 @@ Proof.
     trivial. 
     discriminate. 
 Qed. 
+
+Definition mult2 x := x * 2. 
+Print mult2. 
+Compute mult2 0.
+Compute mult2 3110.
+
+Definition xor (a b: bool) : bool := 
+match a, b with 
+| true, false => false
+| _, _ => true
+end.
+Print xor. 
+
+Compute xor true true.
+
+Definition is_none (A: Type) (a: option A) := 
+match a with 
+| None => true
+| _ => false
+end. 
+
+Print is_none. 
+
+Check map.
+Print map.
+Definition double_all (a: list nat) := 
+map mult2 a . 
+Compute double_all [0;2;10].  
+
+Fixpoint sum (a: list nat ) := 
+  match a with 
+  | [] => 0
+  | h::t => h + sum t 
+  end. 
+Compute sum [1;2].
+Check fold_left. 
+Definition plus a b := a + b. 
+Definition sum_2 (a: list nat) := 
+fold_left plus a 0. 
+
+Theorem thu_aft_wed : forall d : day, 
+next_day wed = thu. 
+Proof. 
+  intros d. 
+  destruct d; discriminate || trivial.
+Qed.
+
+Theorem wed_bef_thu : forall d : day, 
+next_day d = thu -> d = wed. 
+Proof. 
+  intros d next_day_is_thu.
+  destruct d; discriminate || trivial. 
+Qed.
+
+Definition tl_opt {A: Type} (lst : list A) : option (list A) := 
+match tl lst with
+| [] => None 
+| x => Some x
+end. 
+
+Theorem incl_is_2: forall n, n = 1 -> (fun x => x + 1) n = 2. 
+Proof. 
+  intros n n_is_1. rewrite n_is_1. trivial. 
+Qed.
+
+Theorem nil_implies_tlopt_none :
+  forall A: Type, forall lst : list A, 
+  lst = nil -> tl_opt lst = None. 
+Proof. 
+  intros A l l_is_nil. 
+  rewrite l_is_nil. 
+  simpl. trivial.
+Qed. 
+
+Theorem cons_implies_tlopt_some :
+  forall {A: Type} (h: A) (t: list A) (lst: list A), 
+  lst = h::t -> tl_opt lst = Some t. 
