@@ -178,3 +178,59 @@ Proof.
   exact I.
 Qed.
 Print notTrue.
+
+Theorem contra_implies_anything : forall P Q, P/\~P -> Q.
+Proof.
+  unfold not.
+  intros P Q PandnotP.
+  destruct PandnotP as [P_holds notP_holds].
+  contradiction.
+Qed.
+Print contra_implies_anything.
+
+Theorem deMorgan : forall P Q : Prop, ~(P \/ Q) -> ~P /\ ~Q.
+Proof.
+  unfold not.
+  intros P Q PorQ_imp_false.
+  split.
+  - intros P_holds. apply PorQ_imp_false. left. assumption.
+  - intros Q_holds. apply PorQ_imp_false. right. assumption.
+Qed.
+Print deMorgan.
+
+Theorem deMorgan2 : forall P Q : Prop, ~(P /\ Q) -> ~P \/ ~Q.
+Proof. 
+  unfold not.
+  intros P Q PQ_imp_false.
+  left.
+  intros P_holds. apply PQ_imp_false. split. assumption.
+Abort.
+
+Theorem p_imp_nnp: forall P : Prop, P -> ~~P.
+Proof.
+  unfold not.
+  intros P evP evPimpFalse.
+  apply evPimpFalse.
+  assumption.
+Qed.
+
+Theorem syllogism' : forall P Q : Prop, P -> (P -> Q) -> Q.
+Proof.
+  intros P Q evP evPimpQ.
+  apply evPimpQ.
+  assumption.
+Qed.
+Theorem p_imp_nnp': forall P : Prop, P -> ~~P.
+Proof. 
+  unfold not.
+  intros P.
+  apply syllogism'.
+Qed.
+Print p_imp_nnp'.
+
+Module ClassicalReasoning.
+  Require Import Coq.Logic.Classical.
+  Print classic.
+  Print NNPP.
+End ClassicalReasoning.
+
