@@ -234,3 +234,24 @@ Module ClassicalReasoning.
   Print NNPP.
 End ClassicalReasoning.
 
+Locate "=".
+Print eq.
+Definition eq42 := @eq nat 42.
+Check eq42.
+Check (eq42 42).
+Check (eq42 43).
+Check @eq_refl nat 42.
+
+Theorem direct_eq: 42 = 42.
+Proof.
+  exact (eq_refl 42).
+Qed.
+Locate "->".
+
+Theorem deMorgan' : forall P Q: Prop,
+    ~(P \/ Q) -> ~P /\ ~Q.
+Proof.
+  tauto.
+Qed.
+Print deMorgan'.
+
