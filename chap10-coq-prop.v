@@ -255,3 +255,187 @@ Proof.
 Qed.
 Print deMorgan'.
 
+Definition x := 2.
+Definition y: Set := nat.
+Definition z : 0 * 1 = 0 := eq_refl.
+Print z.
+Definition w : Type := list nat.
+
+Theorem impl : forall P Q : Prop,
+    P -> (Q -> P).
+Proof.
+  intros P Q wP wQ.
+  assumption.
+Qed.
+
+Theorem imp2 : forall P Q R : Prop,
+    (P -> (Q -> R)) -> (Q -> (P -> R)).
+Proof.
+  intros P Q R PtoQtoR eQ eP.
+  apply PtoQtoR.
+  assumption.
+  assumption.
+Qed.
+Print imp2.
+
+Theorem imp3 : forall P Q R : Prop,
+    ((P -> Q) -> (P -> R)) -> (P -> (Q -> R)).
+Proof.
+  intros P Q R PtoQtoPtoR eP eQ.
+  apply PtoQtoPtoR.
+  intros eeP.
+  assumption.
+  assumption.
+Qed.
+Print imp3.
+
+
+Theorem conj1 : forall P Q : Prop,
+    P -> (Q -> (P /\ Q)).
+Proof.
+  intros P Q eP eQ.
+  split.
+  assumption.
+  assumption.
+Qed.
+
+Theorem conj2 : forall P Q R : Prop,
+    (P -> (Q -> R)) -> ((P /\ Q ) -> R).
+Proof.
+  intros P Q R PtoQtoR PandQ.
+  apply PtoQtoR.
+  destruct PandQ as [eP eQ].
+  assumption.
+  destruct PandQ as [eP eQ].
+  assumption.
+Qed.
+Print conj2.
+
+Theorem conj3 : forall P Q R : Prop,
+    (P /\ (Q /\ R)) -> ((P /\ Q) /\ R).
+Proof.
+  intros P Q R PandQandR.
+  destruct PandQandR as [eP QandR].
+  destruct QandR as [eQ eR].
+  split.
+  - split; assumption.
+  - assumption.
+Qed.
+Print conj3.
+
+Definition direct_conj3 (P Q R : Prop) (evP_QR : P /\ Q /\ R)
+  : (P /\ Q) /\ R
+  :=
+    match evP_QR with
+    | conj evP evQR =>
+      match evQR with
+      | conj evQ evR => conj (conj evP evQ) evR
+      end
+    end.
+Print direct_conj3.
+
+Definition direct_conj3' (P Q R : Prop) (evP_QR : P /\ Q /\ R)
+  : (P /\ Q) /\ R
+  :=
+    match evP_QR with
+    | conj evP (conj evQ evR) => conj (conj evP evQ) evR
+    end.
+Print direct_conj3'.
+
+Theorem disj1 : forall P : Prop,
+    P -> P \/ P.
+Proof.
+  intros P eP.
+  left.
+  assumption.
+Qed.
+
+Theorem disj2 : forall P : Prop,
+    P \/ P -> P.
+Proof.
+  intros P PorP.
+  destruct PorP.
+  assumption.
+  assumption.
+Qed.
+
+Theorem disj3 : forall P Q R : Prop,
+    (P -> R) -> (Q -> R) -> (P \/ Q -> R).
+Proof.
+  intros P Q R PtoR QtoR PorQ.
+  destruct PorQ.
+  - apply PtoR. assumption.
+  - apply QtoR. assumption.
+Qed.
+
+Theorem and_distr_or : forall P Q R,
+    P /\ (Q \/ R) -> (P /\ Q) \/ (P /\ R).
+Proof.
+  intros P Q R PandQorR.
+  destruct PandQorR as [eP QorR].
+  destruct QorR as [eQ | eR].
+  - left. split; assumption.
+  - right. split; assumption.
+Qed.
+Print and_distr_or.
+
+Theorem tf1 : True \/ False.
+Proof.
+  left.
+  exact I.
+Qed.
+
+Locate "<->".
+Print iff.
+
+Theorem tf2: forall P : Prop,
+    P <-> (True <-> P).
+Proof.
+  unfold iff.
+  intros P.
+  split.
+  - intros eP.
+    split.
+    + intros t.
+      assumption.
+    + intros eeP.
+      exact I.
+  - intros ttPaPtt.
+    destruct ttPaPtt as [l r].
+    apply l.
+    exact I.
+Qed.
+Print tf2.
+
+Theorem neg1 : forall P : Prop,
+    P /\ ~P -> False.
+Proof.
+  intros P PorNotP.
+  destruct PorNotP.
+  contradiction.
+Qed.
+Print neg1.
+
+Theorem neg2 : forall P Q : Prop,
+    (P -> Q) -> (~Q -> ~P).
+Proof.
+  unfold not.
+  intros P Q PtoQ nQ.
+  intros eP.
+  apply nQ.
+  apply PtoQ.
+  assumption.
+Qed.
+Print neg2.
+
+Theorem neg3: forall P Q : Prop,
+    ~P \/ ~Q -> ~(P /\ Q).
+Proof.
+  unfold not.
+  intros P Q nPornQ.
+  intros PandQ.
+  destruct nPornQ as [nP | nQ].
+  - apply nP. destruct PandQ. assumption.
+  - apply nQ. destruct PandQ. assumption.
+Qed.
+Print neg3.
