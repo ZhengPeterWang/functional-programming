@@ -151,3 +151,57 @@ Extract Inductive list => "list" ["[]" "(::)"].
 Extract Inlined Constant length => "List.length".
 
 Extraction "chap10-mystack.ml" MyStack.
+
+Module Compiler.
+  Inductive expr : Type :=
+  | Const : nat -> expr
+  | Plus : expr -> expr -> expr.
+
+  Fixpoint eval_expr (e : expr) : nat :=
+    match e with
+    | Const i => i
+    | Plus e1 e2 => (eval_expr e1) + (eval_expr e2)
+    end.
+
+  Example source_test_1 : eval_expr (Const 42) = 42.
+  Proof. trivial. Qed.
+
+  Example source_test_2 : eval_expr (Plus (Const 42) (Const 2)) = 44.
+  Proof. trivial. Qed.
+
+  Inductive instr : Type :=
+  | PUSH : nat -> instr
+  | ADD : instr.
+
+  Definition prog := list instr.
+
+  Definition stack := list nat.
+
+  Fixpoint eval_prog (p : prog) (s : stack) : option stack :=
+    match p,s with
+    | PUSH n :: p', s => eval_prog p' (n::s)
+    | ADD :: p', x::y::s' => eval_prog p' (x + y :: s')
+    | nil, s => Some s
+    | _, _ => None
+    end.
+
+  Example target_test_1 : eval_prog [PUSH 42] [] = Some [42].
+  Proof. trivial. Qed.
+
+  Example target_test_2 : eval_prog [PUSH 2; PUSH 2; ADD] [] = Some [4].
+  Proof. trivial. Qed.
+
+  Fixpoint compile (e : expr) : prog :=
+    match e with
+    | Const n => [PUSH n]
+    | Plus e1 e2 => compile e2 ++ compile e1 ++ [ADD]
+    end.
+
+  Example compile_test_1 : compile (Const 42) = [PUSH 42].
+  Proof. trivial. Qed.
+
+  Example compile_test_2 : compile (Plus (Const 2) (Const 3))
+  = [PUSH 3; PUSH 2; ADD].
+  Proof. trivial. Qed.
+
+  
