@@ -205,3 +205,43 @@ Module Compiler.
   Proof. trivial. Qed.
 
   
+Example post_test_1 :
+  eval_prog (compile (Const 42)) [] = Some [eval_expr (Const 42)].
+Proof. trivial. Qed.
+
+Example post_test_2 :
+  eval_prog (compile (Plus (Const 2) (Const 3))) []
+  = Some [eval_expr (Plus (Const 2) (Const 3))].
+Proof. trivial. Qed.
+
+Lemma app_assoc_4 : forall (A:Type) (l1 l2 l3 l4 : list A),
+    l1 ++ (l2 ++ l3 ++ l4) = (l1 ++ l2 ++ l3) ++ l4.
+Proof.
+  intros A l1 l2 l3 l4.
+  replace (l2 ++ l3 ++ l4) with ((l2 ++ l3) ++ l4);
+  rewrite app_assoc; trivial.  
+Qed.
+
+Lemma compile_helper : forall (e: expr) (s:stack) (p:prog),
+    eval_prog (compile e ++ p) s = eval_prog p (eval_expr e::s).
+Proof.
+  intros e.
+  induction e as [n | e1 IH1 e2 IH2]; simpl.
+  - trivial.
+  - intros s p. rewrite <- app_assoc_4.
+    rewrite IH2. rewrite IH1. simpl. trivial.
+Qed.
+
+Theorem compile_correct: forall (e : expr),
+    eval_prog (compile e) [] = Some [eval_expr e].
+Proof.
+  intros e.
+  induction e as [n | e1 IH1 e2 IH2]; simpl.
+  - trivial.
+  - repeat rewrite compile_helper. simpl. trivial.
+Qed.
+End Compiler.
+Extract Inlined Constant Init.Nat.add => "( + )".
+Extract Inlined Constant app => "( @ )".
+Extraction "chap10-compiler.ml" Compiler.eval_expr 
+           Compiler.eval_prog Compiler.compile.
