@@ -439,3 +439,55 @@ Proof.
   - apply nQ. destruct PandQ. assumption.
 Qed.
 Print neg3.
+
+Print and.
+Print or.
+Print not.
+Print False_rect.
+Print left.
+
+Definition ex1 : forall A B : Prop,
+    A -> (A \/ B)
+  := fun (A B : Prop) (pa : A) =>
+       or_introl pa.
+
+Theorem ex2: forall (A B C : Prop),
+    (A -> C) -> ((B -> C) -> ((A \/ B) -> C)).
+Proof.
+  intros A B C atoc btoc aorb.
+  destruct aorb as [pa | pb].
+  - apply atoc. assumption.
+  - apply btoc. assumption.
+Qed.
+Print ex2.
+
+Definition ex2' : forall A B C: Prop,
+    (A -> C) -> ((B -> C) -> ((A \/ B) -> C))
+  :=
+    fun (A B C : Prop) (ac : A -> C) (bc : B -> C) (aorb : A \/ B) =>
+      match aorb with
+      | or_introl pa => ac pa
+      | or_intror pb => bc pb
+      end.
+  
+Print not. 
+Print and.
+
+Print False_rect.
+
+Theorem ex3 : forall A B : Prop,
+    (A /\ ~A) -> B.
+Proof.
+  intros A B ana.
+  destruct ana.
+  contradiction.
+Qed.
+Print ex3.
+
+Definition ex3' : forall A B : Prop,
+    (A /\ ~A) -> B
+  :=
+    fun (A B : Prop) (ana : A /\ ~ A) =>
+      match ana with
+      | conj H H0 => False_ind B (H0 H)
+      end.
